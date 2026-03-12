@@ -16,7 +16,7 @@ interface PaymentCalculatorProps {
   maestria: Maestria | null;
 }
 
-type PaymentType = "diferido" | "contado" | "grupo";
+type PaymentType = "plan20" | "plan25";
 
 interface AmortizationRow {
   cuota: number;
@@ -26,7 +26,7 @@ interface AmortizationRow {
 }
 
 const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
-  const [paymentType, setPaymentType] = useState<PaymentType>("diferido");
+  const [paymentType, setPaymentType] = useState<PaymentType>("plan20");
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [numCuotas, setNumCuotas] = useState<string>("12");
   const [amortizationTable, setAmortizationTable] = useState<AmortizationRow[]>([]);
@@ -51,30 +51,23 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
   }, []);
 
   const getPaymentDetails = () => {
-    if (!maestria) return { total: 0, cuotaMensual: 0, descuento: "50%" };
+    if (!maestria) return { total: 0, cuotaMensual: 0, descuento: "0%" };
 
     const cuotas = parseInt(numCuotas);
-    
-    if (paymentType === "diferido") {
-      const total = maestria.precioCon50Beca;
-      const cuotaMensual = cuotas === 12 
-        ? maestria.creditoDirecto12 
-        : cuotas === 16 
-          ? maestria.creditoDirecto16 
-          : total / cuotas;
-      return { total, cuotaMensual, descuento: "50%" };
+
+    if (paymentType === "plan20") {
+      const total = maestria.vFinal20Dscto;
+      let cuotaMensual = total;
+      if (cuotas === 12 && maestria.cuotas12_20Dscto) cuotaMensual = maestria.cuotas12_20Dscto;
+      if (cuotas === 16 && maestria.cuotas16_20Dscto) cuotaMensual = maestria.cuotas16_20Dscto;
+      if (cuotas === 18 && maestria.cuotas18_20Dscto) cuotaMensual = maestria.cuotas18_20Dscto;
+      return { total, cuotaMensual, descuento: "20%" };
     } else {
-      const total = maestria.precioContado55;
-      if (paymentType === "contado") {
-        return { total, cuotaMensual: total, descuento: "55%" };
-      } else {
-        const cuotaMensual = cuotas === 12 
-          ? maestria.creditoDirecto12Contado 
-          : cuotas === 16 
-            ? maestria.creditoDirecto16Contado 
-            : total / cuotas;
-        return { total, cuotaMensual, descuento: "55%" };
-      }
+      const total = maestria.vFinal25Dscto;
+      let cuotaMensual = total;
+      if (cuotas === 12 && maestria.cuotas12_25Dscto) cuotaMensual = maestria.cuotas12_25Dscto;
+      if (cuotas === 16 && maestria.cuotas16_25Dscto) cuotaMensual = maestria.cuotas16_25Dscto;
+      return { total, cuotaMensual, descuento: "25%" };
     }
   };
 
@@ -87,7 +80,7 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
     const table: AmortizationRow[] = [];
     let saldoPendiente = total;
 
-    if (paymentType === "contado") {
+    if (cuotas === 1) {
       const fechaPago = setDate(startDate, 5);
       table.push({
         cuota: 1,
@@ -98,8 +91,8 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
     } else {
       for (let i = 0; i < cuotas; i++) {
         const fechaPago = setDate(addMonths(startDate, i), 5);
-        const montoActual = i === cuotas - 1 
-          ? saldoPendiente 
+        const montoActual = i === cuotas - 1
+          ? saldoPendiente
           : cuotaMensual;
         saldoPendiente = Math.max(0, saldoPendiente - montoActual);
 
@@ -117,16 +110,15 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
     logActivity("calculo_pagos", {
       maestria: maestria.nombre,
       tipo_pago: paymentType,
-      cuotas: paymentType === "contado" ? 1 : parseInt(numCuotas),
+      cuotas: cuotas,
       total,
     });
   };
 
   const getPaymentTypeLabel = () => {
     switch (paymentType) {
-      case "diferido": return "Diferido (50% beca)";
-      case "contado": return "Contado (55% descuento)";
-      case "grupo": return "Grupo (55% descuento)";
+      case "plan20": return "Plan Crédito Directo (20% descuento)";
+      case "plan25": return "Plan Crédito Directo (25% descuento)";
     }
   };
 
@@ -135,43 +127,43 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-    
+
     // Add logo if available
     if (logoBase64) {
       doc.addImage(logoBase64, "PNG", 14, 10, 60, 20);
     }
-    
+
     // Header - Universidad Casa Grande
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.text("POSGRADOS", pageWidth - 14, 18, { align: "right" });
-    
+
     // Line separator
     doc.setDrawColor(230, 126, 34);
     doc.setLineWidth(0.5);
     doc.line(14, 35, pageWidth - 14, 35);
-    
+
     // Title
     doc.setFontSize(18);
     doc.setTextColor(44, 62, 80);
     doc.text("Tabla de Amortización", pageWidth / 2, 48, { align: "center" });
-    
+
     // Info box
     doc.setFillColor(245, 245, 245);
     doc.roundedRect(14, 55, pageWidth - 28, 35, 3, 3, "F");
-    
+
     doc.setFontSize(10);
     doc.setTextColor(80, 80, 80);
     doc.text(`Programa: ${maestria.nombre}`, 20, 65);
     doc.text(`Tipo de Pago: ${getPaymentTypeLabel()}`, 20, 73);
-    doc.text(`Número de Cuotas: ${paymentType === "contado" ? "1" : numCuotas}`, 20, 81);
-    
+    doc.text(`Número de Cuotas: ${numCuotas}`, 20, 81);
+
     const { total } = getPaymentDetails();
     doc.setFontSize(11);
     doc.setTextColor(44, 62, 80);
     doc.text(`Total a Pagar: $${total.toFixed(2)}`, pageWidth - 20, 73, { align: "right" });
     doc.text(`Inscripción: $${maestria.inscripcion}`, pageWidth - 20, 81, { align: "right" });
-    
+
     // Table
     autoTable(doc, {
       startY: 98,
@@ -183,7 +175,7 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
         row.saldoPendiente.toFixed(2),
       ]),
       theme: "striped",
-      headStyles: { 
+      headStyles: {
         fillColor: [230, 126, 34],
         textColor: [255, 255, 255],
         fontStyle: "bold",
@@ -239,43 +231,30 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
         <span>Calculadora de Cuotas</span>
       </div>
 
-      {/* Tipo de Pago - 3 opciones */}
+      {/* Tipo de Descuento */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-muted-foreground mb-3">
-          Tipo de Pago
+          Plan de Descuento
         </label>
-        <div className="grid grid-cols-3 gap-3">
-          <div 
-            className={`payment-option ${paymentType === "diferido" ? "payment-option-selected" : "payment-option-unselected"}`}
-            onClick={() => setPaymentType("diferido")}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <CreditCard className="w-4 h-4 text-primary" />
-              <span className="font-medium text-sm">Diferido</span>
-            </div>
-            <span className="text-xs text-muted-foreground">50% beca</span>
-          </div>
-
-          <div 
-            className={`payment-option ${paymentType === "contado" ? "payment-option-selected" : "payment-option-unselected"}`}
-            onClick={() => setPaymentType("contado")}
+        <div className="grid grid-cols-2 gap-3">
+          <div
+            className={`payment-option ${paymentType === "plan20" ? "payment-option-selected" : "payment-option-unselected"}`}
+            onClick={() => { setPaymentType("plan20"); if (numCuotas === "18" && maestria.cuotas18_20Dscto === null) setNumCuotas("16"); }}
           >
             <div className="flex items-center gap-2 mb-1">
               <Percent className="w-4 h-4 text-primary" />
-              <span className="font-medium text-sm">Contado</span>
+              <span className="font-medium text-sm">Plan 20% Descuento</span>
             </div>
-            <span className="text-xs text-success font-medium">55% desc.</span>
           </div>
 
-          <div 
-            className={`payment-option ${paymentType === "grupo" ? "payment-option-selected" : "payment-option-unselected"}`}
-            onClick={() => setPaymentType("grupo")}
+          <div
+            className={`payment-option ${paymentType === "plan25" ? "payment-option-selected" : "payment-option-unselected"}`}
+            onClick={() => { setPaymentType("plan25"); if (numCuotas === "18") setNumCuotas("16"); }}
           >
             <div className="flex items-center gap-2 mb-1">
-              <Users className="w-4 h-4 text-primary" />
-              <span className="font-medium text-sm">Grupo</span>
+              <Percent className="w-4 h-4 text-primary" />
+              <span className="font-medium text-sm">Plan 25% Descuento</span>
             </div>
-            <span className="text-xs text-success font-medium">55% desc.</span>
           </div>
         </div>
       </div>
@@ -308,27 +287,24 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
       </div>
 
       {/* Número de Cuotas */}
-      {paymentType !== "contado" && (
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-muted-foreground mb-2">
-            Número de Cuotas
-          </label>
-          <Select value={numCuotas} onValueChange={setNumCuotas}>
-            <SelectTrigger className="w-full bg-card">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-card">
-              {Array.from({ length: 16 }, (_, i) => i + 1).map((num) => (
-                <SelectItem key={num} value={num.toString()}>
-                  {num} {num === 1 ? "mes" : "meses"} 
-                  {num === 12 && " (recomendado)"}
-                  {num === 16 && " (máximo)"}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-muted-foreground mb-2">
+          Número de Cuotas
+        </label>
+        <Select value={numCuotas} onValueChange={setNumCuotas}>
+          <SelectTrigger className="w-full bg-card">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-card">
+            <SelectItem value="1">1 pago (Contado)</SelectItem>
+            <SelectItem value="12">12 meses</SelectItem>
+            <SelectItem value="16">16 meses</SelectItem>
+            {paymentType === "plan20" && maestria.cuotas18_20Dscto && (
+              <SelectItem value="18">18 meses</SelectItem>
+            )}
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* Resumen */}
       <div className="p-4 rounded-lg bg-secondary/50 border border-border mb-6">
@@ -348,11 +324,11 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
             <span className="text-muted-foreground">Total a pagar:</span>
             <span className="font-bold text-lg">${total.toFixed(2)}</span>
           </div>
-          {paymentType !== "contado" && (
+          {numCuotas !== "1" && (
             <div className="flex justify-between">
               <span className="text-muted-foreground">Cuota mensual:</span>
               <span className="font-medium text-primary">
-                ${cuotaMensual.toFixed(2)} x {numCuotas} meses
+                ${cuotaMensual.toFixed(2)} x {numCuotas} cuotas
               </span>
             </div>
           )}
@@ -363,7 +339,7 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
         </div>
       </div>
 
-      <Button 
+      <Button
         onClick={generateAmortizationTable}
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
       >
@@ -375,9 +351,9 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
         <div className="mt-6">
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-semibold">Tabla de Amortización</h4>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={downloadPDF}
               className="gap-2"
             >
@@ -397,8 +373,8 @@ const PaymentCalculator = ({ maestria }: PaymentCalculatorProps) => {
               </thead>
               <tbody>
                 {amortizationTable.map((row, idx) => (
-                  <tr 
-                    key={row.cuota} 
+                  <tr
+                    key={row.cuota}
                     className={idx % 2 === 0 ? "bg-secondary/30" : "bg-card"}
                   >
                     <td className="px-3 py-2 font-medium">{row.cuota}</td>

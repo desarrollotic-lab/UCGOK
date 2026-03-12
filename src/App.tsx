@@ -9,7 +9,7 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Calculadora from "./pages/Calculadora";
 import Senescyt from "./pages/Senescyt";
-import Configuracion from "./pages/Configuracion";
+// import Configuracion from "./pages/Configuracion";
 import ConfigAPI from "./pages/ConfigAPI";
 import ModuleSelection from "./pages/ModuleSelection";
 import Configuraciones from "./pages/Configuraciones";
@@ -32,7 +32,7 @@ const App = () => (
                 <Route path="/tablero" element={<Dashboard />} />
                 <Route path="/calculadora" element={<Calculadora />} />
                 <Route path="/senescyt" element={<Senescyt />} />
-                <Route path="/configuracion" element={<Configuracion />} />
+                {/* <Route path="/configuracion" element={<Configuracion />} /> */}
                 <Route path="/config-api" element={<ConfigAPI />} />
               </Route>
               <Route path="*" element={<NotFound />} />

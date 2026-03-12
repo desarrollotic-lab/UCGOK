@@ -3,13 +3,13 @@ import Header from "@/components/Header";
 import { ArrowRight, ChevronLeft, Settings, Globe } from "lucide-react";
 
 const subModules = [
-  {
-    title: "Configuración",
-    description: "Gestiona los precios y datos de las maestrías",
-    icon: Settings,
-    to: "/configuracion",
-    accent: "hsl(var(--muted-foreground))",
-  },
+  // {
+  //   title: "Configuración",
+  //   description: "Gestiona los precios y datos de las maestrías",
+  //   icon: Settings,
+  //   to: "/configuracion",
+  //   accent: "hsl(var(--muted-foreground))",
+  // },
   {
     title: "Config. APIs",
     description: "Configura las URLs de APIs externas",

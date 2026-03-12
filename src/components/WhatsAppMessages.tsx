@@ -35,9 +35,7 @@ const WhatsAppMessages = ({ maestria }: WhatsAppMessagesProps) => {
 
 Me gustaría compartirte información sobre nuestra *${maestria.nombre}*.
 
-📚 *Precio regular:* $${maestria.precioBruto.toLocaleString()}
-🎓 *Con 50% de beca:* $${maestria.precioCon50Beca.toLocaleString()}
-💰 *Inscripción:* Solo $${maestria.inscripcion}
+📚 *Precio bruto:* $${maestria.precioBruto.toLocaleString()}
 
 ¿Te gustaría conocer nuestras opciones de financiamiento? 😊`,
     },
@@ -45,18 +43,12 @@ Me gustaría compartirte información sobre nuestra *${maestria.nombre}*.
       title: "Mensaje 2: Opciones de Pago",
       content: `✨ *OPCIONES DE PAGO - ${maestria.nombre}*
 
-💵 *OPCIÓN 1 - CONTADO (55% descuento):*
-Total: $${maestria.precioContado55.toFixed(2)}
-¡Ahorras más pagando de contado!
-
-📅 *OPCIÓN 2 - DIFERIDO 12 MESES:*
-Cuota mensual: $${maestria.creditoDirecto12.toFixed(2)}
-Total: $${maestria.precioCon50Beca.toFixed(2)}
-
-📅 *OPCIÓN 3 - DIFERIDO 16 MESES:*
-Cuota mensual: $${maestria.creditoDirecto16.toFixed(2)}
-Total: $${maestria.precioCon50Beca.toFixed(2)}
-
+💵 *OPCIÓN 1 - PLAN 25% DESCUENTO:*
+Total a pagar: $${maestria.vFinal25Dscto.toLocaleString()}
+${maestria.cuotas12_25Dscto ? `📅 12 Cuotas de: $${maestria.cuotas12_25Dscto.toFixed(2)}\n` : ""}${maestria.cuotas16_25Dscto ? `📅 16 Cuotas de: $${maestria.cuotas16_25Dscto.toFixed(2)}\n` : ""}
+💵 *OPCIÓN 2 - PLAN 20% DESCUENTO:*
+Total a pagar: $${maestria.vFinal20Dscto.toLocaleString()}
+${maestria.cuotas12_20Dscto ? `📅 12 Cuotas de: $${maestria.cuotas12_20Dscto.toFixed(2)}\n` : ""}${maestria.cuotas16_20Dscto ? `📅 16 Cuotas de: $${maestria.cuotas16_20Dscto.toFixed(2)}\n` : ""}${maestria.cuotas18_20Dscto ? `📅 18 Cuotas de: $${maestria.cuotas18_20Dscto.toFixed(2)}\n` : ""}
 ¿Cuál opción te interesa más? 🤔`,
     },
     {
@@ -98,8 +90,8 @@ El valor de inscripción es de solo *$${maestria.inscripcion}* 💪`,
 
       <div className="space-y-4">
         {messages.map((msg, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className="p-4 rounded-lg bg-secondary/50 border border-border hover:border-primary/30 transition-colors"
           >
             <div className="flex items-center justify-between mb-2">

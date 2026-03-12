@@ -12,12 +12,13 @@ const emptyMaestria: Omit<Maestria, "id"> = {
   nombre: "",
   precioBruto: 0,
   inscripcion: 100,
-  precioCon50Beca: 0,
-  creditoDirecto12: 0,
-  creditoDirecto16: 0,
-  precioContado55: 0,
-  creditoDirecto12Contado: 0,
-  creditoDirecto16Contado: 0,
+  vFinal20Dscto: 0,
+  cuotas12_20Dscto: null,
+  cuotas16_20Dscto: null,
+  cuotas18_20Dscto: null,
+  vFinal25Dscto: 0,
+  cuotas12_25Dscto: null,
+  cuotas16_25Dscto: null,
 };
 
 const Configuracion = () => {
@@ -34,12 +35,13 @@ const Configuracion = () => {
       nombre: m.nombre,
       precioBruto: m.precioBruto,
       inscripcion: m.inscripcion,
-      precioCon50Beca: m.precioCon50Beca,
-      creditoDirecto12: m.creditoDirecto12,
-      creditoDirecto16: m.creditoDirecto16,
-      precioContado55: m.precioContado55,
-      creditoDirecto12Contado: m.creditoDirecto12Contado,
-      creditoDirecto16Contado: m.creditoDirecto16Contado,
+      vFinal20Dscto: m.vFinal20Dscto,
+      cuotas12_20Dscto: m.cuotas12_20Dscto,
+      cuotas16_20Dscto: m.cuotas16_20Dscto,
+      cuotas18_20Dscto: m.cuotas18_20Dscto,
+      vFinal25Dscto: m.vFinal25Dscto,
+      cuotas12_25Dscto: m.cuotas12_25Dscto,
+      cuotas16_25Dscto: m.cuotas16_25Dscto,
     });
   };
 
@@ -81,12 +83,13 @@ const Configuracion = () => {
   const numericFields: { key: keyof Maestria; label: string }[] = [
     { key: "precioBruto", label: "Precio Bruto" },
     { key: "inscripcion", label: "Inscripción" },
-    { key: "precioCon50Beca", label: "50% Beca" },
-    { key: "creditoDirecto12", label: "Cuota 12m" },
-    { key: "creditoDirecto16", label: "Cuota 16m" },
-    { key: "precioContado55", label: "Contado 55%" },
-    { key: "creditoDirecto12Contado", label: "Cuota 12m Contado" },
-    { key: "creditoDirecto16Contado", label: "Cuota 16m Contado" },
+    { key: "vFinal20Dscto", label: "V. Final 20% Dsc" },
+    { key: "cuotas12_20Dscto", label: "12 Cuotas 20%" },
+    { key: "cuotas16_20Dscto", label: "16 Cuotas 20%" },
+    { key: "cuotas18_20Dscto", label: "18 Cuotas 20%" },
+    { key: "vFinal25Dscto", label: "V. Final 25% Dsc" },
+    { key: "cuotas12_25Dscto", label: "12 Cuotas 25%" },
+    { key: "cuotas16_25Dscto", label: "16 Cuotas 25%" },
   ];
 
   const visibleCount = maestrias.filter(m => m.visible !== false).length;

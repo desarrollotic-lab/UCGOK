@@ -27,13 +27,13 @@ const MaestriaSelector = ({ selectedMaestria, onSelect }: MaestriaSelectorProps)
         </div>
         <span>Selecciona tu Maestría</span>
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-muted-foreground mb-2">
           Programa de Maestría
         </label>
-        <Select 
-          value={selectedMaestria?.id.toString() || ""} 
+        <Select
+          value={selectedMaestria?.id.toString() || ""}
           onValueChange={handleChange}
         >
           <SelectTrigger className="w-full bg-card">
@@ -61,12 +61,12 @@ const MaestriaSelector = ({ selectedMaestria, onSelect }: MaestriaSelectorProps)
               <span className="ml-2 font-semibold">${selectedMaestria.inscripcion}</span>
             </div>
             <div>
-              <span className="text-muted-foreground">Con 50% Beca:</span>
-              <span className="ml-2 font-semibold text-primary">${selectedMaestria.precioCon50Beca.toLocaleString()}</span>
+              <span className="text-muted-foreground">Con 20% Desc:</span>
+              <span className="ml-2 font-semibold text-primary">${selectedMaestria.vFinal20Dscto.toLocaleString()}</span>
             </div>
             <div>
-              <span className="text-muted-foreground">Con 55% (Contado):</span>
-              <span className="ml-2 font-semibold text-success">${selectedMaestria.precioContado55.toLocaleString()}</span>
+              <span className="text-muted-foreground">Con 25% Desc:</span>
+              <span className="ml-2 font-semibold text-success">${selectedMaestria.vFinal25Dscto.toLocaleString()}</span>
             </div>
           </div>
         </div>

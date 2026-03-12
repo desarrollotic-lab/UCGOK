@@ -14,14 +14,14 @@ const modules = [
     to: "/tablero",
     accent: "hsl(var(--primary))",
   },
-  {
-    id: "configuraciones",
-    title: "Configuraciones",
-    description: "Administra ajustes del sistema y APIs",
-    icon: iconConfiguraciones,
-    to: "/configuraciones",
-    accent: "hsl(var(--muted-foreground))",
-  },
+  // {
+  //   id: "configuraciones",
+  //   title: "Configuraciones",
+  //   description: "Administra ajustes del sistema y APIs",
+  //   icon: iconConfiguraciones,
+  //   to: "/configuraciones",
+  //   accent: "hsl(var(--muted-foreground))",
+  // },
 ];
 
 const ModuleSelection = () => {
